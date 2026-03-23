@@ -1,196 +1,87 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
 
 const Signup = () => {
   const navigate = useNavigate();
-  
-  // Regular expressions for validation
-  const nameRegex = /^[A-Za-z]{2,}$/;
-  const usernameRegex = /^[A-Za-z0-9._-]+$/;
-  const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[\W_]).{8,16}$/;
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    username: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-  });
-
-  const [errors, setErrors] = useState({});
-
-  // Arrow function for handling onChange events with real-time validation
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-
-    // Clear error for this field when user starts typing (real-time clearing)
-    if (errors[name]) {
-      setErrors((prevErrors) => ({
-        ...prevErrors,
-        [name]: '',
-      }));
-    }
-  };
-
-  // Arrow function for validating a single field (real-time validation)
-  const validateField = (name, value) => {
-    let error = '';
-
-    switch (name) {
-      case 'firstName':
-        if (!value.trim()) {
-          error = 'First name is required';
-        } else if (!nameRegex.test(value)) {
-          error = 'First name must contain only letters and be at least 2 characters';
-        }
-        break;
-
-      case 'lastName':
-        if (!value.trim()) {
-          error = 'Last name is required';
-        } else if (!nameRegex.test(value)) {
-          error = 'Last name must contain only letters and be at least 2 characters';
-        }
-        break;
-
-      case 'username':
-        if (!value.trim()) {
-          error = 'Username is required';
-        } else if (!usernameRegex.test(value)) {
-          error = 'Username can only contain letters, numbers, dots, underscores, and hyphens';
-        }
-        break;
-
-      case 'email':
-        if (!value.trim()) {
-          error = 'Email is required';
-        } else if (!emailRegex.test(value)) {
-          error = 'Please enter a valid email format (e.g., user@example.com)';
-        }
-        break;
-
-      case 'password':
-        if (!value) {
-          error = 'Password is required';
-        } else if (!passwordRegex.test(value)) {
-          error = 'Password must be 8-16 characters with at least 1 uppercase, 1 lowercase, 1 number, and 1 special character';
-        }
-        break;
-
-      case 'confirmPassword':
-        if (!value) {
-          error = 'Please confirm your password';
-        } else if (formData.password !== value) {
-          error = 'Passwords do not match';
-        }
-        break;
-
-      default:
-        break;
-    }
-
-    return error;
-  };
-
-  // Arrow function for handling onBlur events (real-time validation)
-  const handleBlur = (e) => {
-    const { name, value } = e.target;
-    const error = validateField(name, value);
-
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      [name]: error,
-    }));
-  };
-
-  // Arrow function for validating form with regex patterns
-  const validateForm = () => {
-    const newErrors = {};
-
-    // Validate First Name: only letters, minimum 2 characters
-    if (!formData.firstName.trim()) {
-      newErrors.firstName = 'First name is required';
-    } else if (!nameRegex.test(formData.firstName)) {
-      newErrors.firstName = 'First name must contain only letters and be at least 2 characters';
-    }
-
-    // Validate Last Name: only letters, minimum 2 characters
-    if (!formData.lastName.trim()) {
-      newErrors.lastName = 'Last name is required';
-    } else if (!nameRegex.test(formData.lastName)) {
-      newErrors.lastName = 'Last name must contain only letters and be at least 2 characters';
-    }
-
-    // Validate Username: letters, numbers, dot, underscore, hyphen
-    if (!formData.username.trim()) {
-      newErrors.username = 'Username is required';
-    } else if (!usernameRegex.test(formData.username)) {
-      newErrors.username = 'Username can only contain letters, numbers, dots, underscores, and hyphens';
-    }
-
-    // Validate Email: valid email format
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!emailRegex.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email format (e.g., user@example.com)';
-    }
-
-    // Validate Password: 8-16 characters, at least 1 uppercase, 1 lowercase, 1 number, 1 special character
-    if (!formData.password) {
-      newErrors.password = 'Password is required';
-    } else if (!passwordRegex.test(formData.password)) {
-      newErrors.password = 'Password must be 8-16 characters with at least 1 uppercase, 1 lowercase, 1 number, and 1 special character';
-    }
-
-    // Validate Password Confirmation
-    if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'Please confirm your password';
-    } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
-    }
-
-    return newErrors;
-  };
-
-  // Arrow function for handling onSubmit event
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const newErrors = validateForm();
-
-    if (Object.keys(newErrors).length === 0) {
-      console.log('Form submitted successfully:', formData);
-      setFormData({
-        firstName: '',
-        lastName: '',
-        username: '',
-        email: '',
-        password: '',
-        confirmPassword: '',
-      });
-      setErrors({});
-      navigate('/success');
-    } else {
-      setErrors(newErrors);
-    }
-  };
-
-  // Inline arrow function for resetting form
-  const handleReset = () => {
-    setFormData({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+    getValues,
+  } = useForm({
+    mode: 'onBlur',
+    defaultValues: {
       firstName: '',
       lastName: '',
       username: '',
       email: '',
       password: '',
       confirmPassword: '',
-    });
-    setErrors({});
+    },
+  });
+
+  // Regular expressions for validation
+  const nameRegex = /^[A-Za-z]{2,}$/;
+  const usernameRegex = /^[A-Za-z0-9._-]+$/;
+  const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[\W_]).{8,16}$/;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  // Validation rules for react-hook-form
+  const validationRules = {
+    firstName: {
+      required: 'First name is required',
+      pattern: {
+        value: nameRegex,
+        message: 'First name must contain only letters and be at least 2 characters',
+      },
+    },
+    lastName: {
+      required: 'Last name is required',
+      pattern: {
+        value: nameRegex,
+        message: 'Last name must contain only letters and be at least 2 characters',
+      },
+    },
+    username: {
+      required: 'Username is required',
+      pattern: {
+        value: usernameRegex,
+        message: 'Username can only contain letters, numbers, dots, underscores, and hyphens',
+      },
+    },
+    email: {
+      required: 'Email is required',
+      pattern: {
+        value: emailRegex,
+        message: 'Please enter a valid email format (e.g., user@example.com)',
+      },
+    },
+    password: {
+      required: 'Password is required',
+      pattern: {
+        value: passwordRegex,
+        message: 'Password must be 8-16 characters with at least 1 uppercase, 1 lowercase, 1 number, and 1 special character',
+      },
+    },
+    confirmPassword: {
+      required: 'Please confirm your password',
+      validate: (value) => {
+        const password = getValues('password');
+        return value === password || 'Passwords do not match';
+      },
+    },
+  };
+
+  // Arrow function for form submission using react-hook-form
+  const onSubmit = async (data) => {
+    console.log('Form submitted successfully:', data);
+
+    // Simulate API call delay
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    reset();
+    navigate('/success');
   };
 
   return (
@@ -198,17 +89,14 @@ const Signup = () => {
       <h1>Signup Page</h1>
       <p>Create your account here.</p>
 
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-        {/* First Name Input with onChange */}
+      <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        {/* First Name Input - React Hook Form */}
         <div>
           <label htmlFor="firstName">First Name:</label>
           <input
             type="text"
             id="firstName"
-            name="firstName"
-            value={formData.firstName}
-            onChange={handleChange}
-            onBlur={handleBlur}
+            {...register('firstName', validationRules.firstName)}
             style={{
               width: '100%',
               padding: '0.5rem',
@@ -231,21 +119,18 @@ const Signup = () => {
           />
           {errors.firstName && (
             <span style={{ color: '#d32f2f', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              ✗ {errors.firstName}
+              ✗ {errors.firstName?.message}
             </span>
           )}
         </div>
 
-        {/* Last Name Input with onChange */}
+        {/* Last Name Input - React Hook Form */}
         <div>
           <label htmlFor="lastName">Last Name:</label>
           <input
             type="text"
             id="lastName"
-            name="lastName"
-            value={formData.lastName}
-            onChange={handleChange}
-            onBlur={handleBlur}
+            {...register('lastName', validationRules.lastName)}
             style={{
               width: '100%',
               padding: '0.5rem',
@@ -268,21 +153,18 @@ const Signup = () => {
           />
           {errors.lastName && (
             <span style={{ color: '#d32f2f', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              ✗ {errors.lastName}
+              ✗ {errors.lastName?.message}
             </span>
           )}
         </div>
 
-        {/* Username Input with onChange */}
+        {/* Username Input - React Hook Form */}
         <div>
           <label htmlFor="username">Username:</label>
           <input
             type="text"
             id="username"
-            name="username"
-            value={formData.username}
-            onChange={handleChange}
-            onBlur={handleBlur}
+            {...register('username', validationRules.username)}
             placeholder="Letters, numbers, dots, underscores, hyphens"
             style={{
               width: '100%',
@@ -306,21 +188,18 @@ const Signup = () => {
           />
           {errors.username && (
             <span style={{ color: '#d32f2f', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              ✗ {errors.username}
+              ✗ {errors.username?.message}
             </span>
           )}
         </div>
 
-        {/* Email Input with onChange */}
+        {/* Email Input - React Hook Form */}
         <div>
           <label htmlFor="email">Email:</label>
           <input
             type="email"
             id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            onBlur={handleBlur}
+            {...register('email', validationRules.email)}
             placeholder="user@example.com"
             style={{
               width: '100%',
@@ -344,21 +223,18 @@ const Signup = () => {
           />
           {errors.email && (
             <span style={{ color: '#d32f2f', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              ✗ {errors.email}
+              ✗ {errors.email?.message}
             </span>
           )}
         </div>
 
-        {/* Password Input with onChange */}
+        {/* Password Input - React Hook Form */}
         <div>
           <label htmlFor="password">Password:</label>
           <input
             type="password"
             id="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            onBlur={handleBlur}
+            {...register('password', validationRules.password)}
             placeholder="8-16 chars: 1 uppercase, 1 lowercase, 1 number, 1 special char"
             style={{
               width: '100%',
@@ -382,21 +258,18 @@ const Signup = () => {
           />
           {errors.password && (
             <span style={{ color: '#d32f2f', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              ✗ {errors.password}
+              ✗ {errors.password?.message}
             </span>
           )}
         </div>
 
-        {/* Confirm Password Input with onChange */}
+        {/* Confirm Password Input - React Hook Form */}
         <div>
           <label htmlFor="confirmPassword">Confirm Password:</label>
           <input
             type="password"
             id="confirmPassword"
-            name="confirmPassword"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            onBlur={handleBlur}
+            {...register('confirmPassword', validationRules.confirmPassword)}
             style={{
               width: '100%',
               padding: '0.5rem',
@@ -419,7 +292,7 @@ const Signup = () => {
           />
           {errors.confirmPassword && (
             <span style={{ color: '#d32f2f', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              ✗ {errors.confirmPassword}
+              ✗ {errors.confirmPassword?.message}
             </span>
           )}
         </div>
@@ -428,19 +301,19 @@ const Signup = () => {
         <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
           <button
             type="submit"
-            disabled={Object.keys(errors).length > 0 || !formData.firstName || !formData.lastName || !formData.username || !formData.email || !formData.password || !formData.confirmPassword}
+            disabled={Object.keys(errors).length > 0 || isSubmitting}
             style={{
               flex: 1,
               padding: '0.75rem',
               backgroundColor:
-                Object.keys(errors).length > 0 || !formData.firstName || !formData.lastName || !formData.username || !formData.email || !formData.password || !formData.confirmPassword
+                Object.keys(errors).length > 0 || isSubmitting
                   ? '#ccc'
                   : '#333',
               color: '#fff',
               border: 'none',
               borderRadius: '4px',
               cursor:
-                Object.keys(errors).length > 0 || !formData.firstName || !formData.lastName || !formData.username || !formData.email || !formData.password || !formData.confirmPassword
+                Object.keys(errors).length > 0 || isSubmitting
                   ? 'not-allowed'
                   : 'pointer',
               fontSize: '1rem',
@@ -459,11 +332,11 @@ const Signup = () => {
               }
             }}
           >
-            {Object.keys(errors).length > 0 ? '✗ Fix Errors' : '✓ Sign Up'}
+            {isSubmitting ? '⏳ Submitting...' : Object.keys(errors).length > 0 ? '✗ Fix Errors' : '✓ Sign Up'}
           </button>
           <button
             type="button"
-            onClick={handleReset}
+            onClick={() => reset()}
             style={{
               flex: 1,
               padding: '0.75rem',
@@ -499,10 +372,10 @@ const Signup = () => {
           borderRadius: '8px',
         }}
       >
-        <h3 style={{ marginTop: 0 }}>State Output (useState Binding):</h3>
+        <h3 style={{ marginTop: 0 }}>Form State (React Hook Form):</h3>
 
         <div style={{ marginBottom: '1rem' }}>
-          <h4>Form Data State:</h4>
+          <h4>Form Submission Status:</h4>
           <pre
             style={{
               backgroundColor: '#fff',
@@ -510,9 +383,18 @@ const Signup = () => {
               borderRadius: '4px',
               overflow: 'auto',
               border: '1px solid #ddd',
+              color: isSubmitting ? '#ff9800' : '#4caf50',
             }}
           >
-            {JSON.stringify(formData, null, 2)}
+            {JSON.stringify(
+              {
+                isSubmitting,
+                submitInProgress: isSubmitting,
+                formReady: !isSubmitting,
+              },
+              null,
+              2
+            )}
           </pre>
         </div>
 

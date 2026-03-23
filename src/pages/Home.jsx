@@ -10,7 +10,7 @@ const Home = () => {
 
   // Arrow function for navigating to profile page
   const handleViewProfile = () => {
-    navigate('/profile');
+    navigate('/profile/john_doe');
   };
 
   return (
