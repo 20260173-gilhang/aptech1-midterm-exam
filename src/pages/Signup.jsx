@@ -219,6 +219,54 @@ const Signup = () => {
           </button>
         </div>
       </form>
+
+      {/* State Output Binding Section */}
+      <div
+        style={{
+          marginTop: '2rem',
+          padding: '1.5rem',
+          backgroundColor: '#f5f5f5',
+          border: '1px solid #ddd',
+          borderRadius: '8px',
+        }}
+      >
+        <h3 style={{ marginTop: 0 }}>State Output (useState Binding):</h3>
+
+        <div style={{ marginBottom: '1rem' }}>
+          <h4>Form Data State:</h4>
+          <pre
+            style={{
+              backgroundColor: '#fff',
+              padding: '1rem',
+              borderRadius: '4px',
+              overflow: 'auto',
+              border: '1px solid #ddd',
+            }}
+          >
+            {JSON.stringify(formData, null, 2)}
+          </pre>
+        </div>
+
+        <div>
+          <h4>Errors State:</h4>
+          <pre
+            style={{
+              backgroundColor: '#fff',
+              padding: '1rem',
+              borderRadius: '4px',
+              overflow: 'auto',
+              border: '1px solid #ddd',
+              color: Object.keys(errors).length > 0 ? '#d32f2f' : '#4caf50',
+            }}
+          >
+            {JSON.stringify(
+              Object.keys(errors).length > 0 ? errors : { message: 'No errors' },
+              null,
+              2
+            )}
+          </pre>
+        </div>
+      </div>
     </div>
   );
 };

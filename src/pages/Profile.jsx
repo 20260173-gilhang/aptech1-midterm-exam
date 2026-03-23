@@ -206,6 +206,65 @@ const Profile = () => {
           </div>
         </form>
       )}
+
+      {/* State Output Binding Section */}
+      <div
+        style={{
+          marginTop: '2rem',
+          padding: '1.5rem',
+          backgroundColor: '#f5f5f5',
+          border: '1px solid #ddd',
+          borderRadius: '8px',
+        }}
+      >
+        <h3 style={{ marginTop: 0 }}>State Output (useState Binding):</h3>
+
+        <div style={{ marginBottom: '1rem' }}>
+          <h4>Profile State:</h4>
+          <pre
+            style={{
+              backgroundColor: '#fff',
+              padding: '1rem',
+              borderRadius: '4px',
+              overflow: 'auto',
+              border: '1px solid #ddd',
+            }}
+          >
+            {JSON.stringify(profile, null, 2)}
+          </pre>
+        </div>
+
+        <div style={{ marginBottom: '1rem' }}>
+          <h4>Is Editing State:</h4>
+          <pre
+            style={{
+              backgroundColor: '#fff',
+              padding: '1rem',
+              borderRadius: '4px',
+              overflow: 'auto',
+              border: '1px solid #ddd',
+              color: isEditing ? '#ff9800' : '#4caf50',
+            }}
+          >
+            {JSON.stringify({ isEditing }, null, 2)}
+          </pre>
+        </div>
+
+        <div>
+          <h4>Edit Data State (Current Form Values):</h4>
+          <pre
+            style={{
+              backgroundColor: '#fff',
+              padding: '1rem',
+              borderRadius: '4px',
+              overflow: 'auto',
+              border: '1px solid #ddd',
+            }}
+          >
+            {JSON.stringify(editData, null, 2)}
+          </pre>
+        </div>
+      </div>
     </div>
   );
 };
