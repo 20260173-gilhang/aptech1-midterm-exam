@@ -1,6 +1,11 @@
 import { useState } from 'react';
 
 const Profile = () => {
+  // Regular expressions for validation
+  const nameRegex = /^[A-Za-z]{2,}$/;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const phoneRegex = /^[\d\-\s\+\(\)]+$/;
+
   const [profile, setProfile] = useState({
     fullName: 'John Doe',
     email: 'john@example.com',
@@ -10,6 +15,7 @@ const Profile = () => {
 
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState(profile);
+  const [errors, setErrors] = useState({});
 
   // Arrow function for handling input changes
   const handleInputChange = (e) => {
@@ -20,12 +26,54 @@ const Profile = () => {
     }));
   };
 
+  // Arrow function for validating profile data
+  const validateProfileData = () => {
+    const newErrors = {};
+
+    // Validate Full Name: only letters, minimum 2 characters
+    if (!editData.fullName.trim()) {
+      newErrors.fullName = 'Full name is required';
+    } else if (!nameRegex.test(editData.fullName.split(' ')[0])) {
+      newErrors.fullName = 'Full name must contain only letters';
+    } else if (editData.fullName.length < 2) {
+      newErrors.fullName = 'Full name must be at least 2 characters';
+    }
+
+    // Validate Email: valid email format
+    if (!editData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!emailRegex.test(editData.email)) {
+      newErrors.email = 'Please enter a valid email format';
+    }
+
+    // Validate Phone: valid phone format
+    if (!editData.phone.trim()) {
+      newErrors.phone = 'Phone is required';
+    } else if (!phoneRegex.test(editData.phone)) {
+      newErrors.phone = 'Please enter a valid phone number';
+    }
+
+    // Validate Bio: basic check
+    if (editData.bio && editData.bio.length > 200) {
+      newErrors.bio = 'Bio must be 200 characters or less';
+    }
+
+    return newErrors;
+  };
+
   // Arrow function for handling save
   const handleSave = (e) => {
     e.preventDefault();
-    setProfile(editData);
-    setIsEditing(false);
-    alert('Profile updated successfully!');
+    const newErrors = validateProfileData();
+
+    if (Object.keys(newErrors).length === 0) {
+      setProfile(editData);
+      setIsEditing(false);
+      setErrors({});
+      alert('Profile updated successfully!');
+    } else {
+      setErrors(newErrors);
+    }
   };
 
   return (
@@ -100,11 +148,12 @@ const Profile = () => {
                 width: '100%',
                 padding: '0.5rem',
                 marginTop: '0.5rem',
-                border: '1px solid #ccc',
+                border: errors.fullName ? '2px solid red' : '1px solid #ccc',
                 borderRadius: '4px',
                 fontSize: '1rem',
               }}
             />
+            {errors.fullName && <span style={{ color: 'red', fontSize: '0.875rem' }}>{errors.fullName}</span>}
           </div>
 
           {/* Email Input with onChange */}
@@ -120,11 +169,12 @@ const Profile = () => {
                 width: '100%',
                 padding: '0.5rem',
                 marginTop: '0.5rem',
-                border: '1px solid #ccc',
+                border: errors.email ? '2px solid red' : '1px solid #ccc',
                 borderRadius: '4px',
                 fontSize: '1rem',
               }}
             />
+            {errors.email && <span style={{ color: 'red', fontSize: '0.875rem' }}>{errors.email}</span>}
           </div>
 
           {/* Bio Input with onChange */}
@@ -140,11 +190,12 @@ const Profile = () => {
                 width: '100%',
                 padding: '0.5rem',
                 marginTop: '0.5rem',
-                border: '1px solid #ccc',
+                border: errors.bio ? '2px solid red' : '1px solid #ccc',
                 borderRadius: '4px',
                 fontSize: '1rem',
               }}
             />
+            {errors.bio && <span style={{ color: 'red', fontSize: '0.875rem' }}>{errors.bio}</span>}
           </div>
 
           {/* Phone Input with onChange */}
@@ -156,15 +207,17 @@ const Profile = () => {
               name="phone"
               value={editData.phone}
               onChange={handleInputChange}
+              placeholder="e.g., 555-1234 or +1(555)123-4567"
               style={{
                 width: '100%',
                 padding: '0.5rem',
                 marginTop: '0.5rem',
-                border: '1px solid #ccc',
+                border: errors.phone ? '2px solid red' : '1px solid #ccc',
                 borderRadius: '4px',
                 fontSize: '1rem',
               }}
             />
+            {errors.phone && <span style={{ color: 'red', fontSize: '0.875rem' }}>{errors.phone}</span>}
           </div>
 
           {/* Buttons with inline arrow functions */}

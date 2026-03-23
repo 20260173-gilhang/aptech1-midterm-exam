@@ -3,9 +3,17 @@ import { useNavigate } from 'react-router-dom';
 
 const Signup = () => {
   const navigate = useNavigate();
+  
+  // Regular expressions for validation
+  const nameRegex = /^[A-Za-z]{2,}$/;
+  const usernameRegex = /^[A-Za-z0-9._-]+$/;
+  const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[\W_]).{8,16}$/;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
+    username: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -22,23 +30,49 @@ const Signup = () => {
     }));
   };
 
-  // Arrow function for validating form
+  // Arrow function for validating form with regex patterns
   const validateForm = () => {
     const newErrors = {};
 
+    // Validate First Name: only letters, minimum 2 characters
     if (!formData.firstName.trim()) {
       newErrors.firstName = 'First name is required';
+    } else if (!nameRegex.test(formData.firstName)) {
+      newErrors.firstName = 'First name must contain only letters and be at least 2 characters';
     }
+
+    // Validate Last Name: only letters, minimum 2 characters
     if (!formData.lastName.trim()) {
       newErrors.lastName = 'Last name is required';
+    } else if (!nameRegex.test(formData.lastName)) {
+      newErrors.lastName = 'Last name must contain only letters and be at least 2 characters';
     }
-    if (!formData.email.includes('@')) {
-      newErrors.email = 'Valid email is required';
+
+    // Validate Username: letters, numbers, dot, underscore, hyphen
+    if (!formData.username.trim()) {
+      newErrors.username = 'Username is required';
+    } else if (!usernameRegex.test(formData.username)) {
+      newErrors.username = 'Username can only contain letters, numbers, dots, underscores, and hyphens';
     }
-    if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+
+    // Validate Email: valid email format
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!emailRegex.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email format (e.g., user@example.com)';
     }
-    if (formData.password !== formData.confirmPassword) {
+
+    // Validate Password: 8-16 characters, at least 1 uppercase, 1 lowercase, 1 number, 1 special character
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    } else if (!passwordRegex.test(formData.password)) {
+      newErrors.password = 'Password must be 8-16 characters with at least 1 uppercase, 1 lowercase, 1 number, and 1 special character';
+    }
+
+    // Validate Password Confirmation
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = 'Please confirm your password';
+    } else if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
     }
 
@@ -55,6 +89,7 @@ const Signup = () => {
       setFormData({
         firstName: '',
         lastName: '',
+        username: '',
         email: '',
         password: '',
         confirmPassword: '',
@@ -71,6 +106,7 @@ const Signup = () => {
     setFormData({
       firstName: '',
       lastName: '',
+      username: '',
       email: '',
       password: '',
       confirmPassword: '',
@@ -124,6 +160,27 @@ const Signup = () => {
           {errors.lastName && <span style={{ color: 'red', fontSize: '0.875rem' }}>{errors.lastName}</span>}
         </div>
 
+        {/* Username Input with onChange */}
+        <div>
+          <label htmlFor="username">Username:</label>
+          <input
+            type="text"
+            id="username"
+            name="username"
+            value={formData.username}
+            onChange={handleChange}
+            placeholder="Letters, numbers, dots, underscores, hyphens"
+            style={{
+              width: '100%',
+              padding: '0.5rem',
+              marginTop: '0.5rem',
+              border: errors.username ? '2px solid red' : '1px solid #ccc',
+              borderRadius: '4px',
+            }}
+          />
+          {errors.username && <span style={{ color: 'red', fontSize: '0.875rem' }}>{errors.username}</span>}
+        </div>
+
         {/* Email Input with onChange */}
         <div>
           <label htmlFor="email">Email:</label>
@@ -133,6 +190,7 @@ const Signup = () => {
             name="email"
             value={formData.email}
             onChange={handleChange}
+            placeholder="user@example.com"
             style={{
               width: '100%',
               padding: '0.5rem',
@@ -153,6 +211,7 @@ const Signup = () => {
             name="password"
             value={formData.password}
             onChange={handleChange}
+            placeholder="8-16 chars: 1 uppercase, 1 lowercase, 1 number, 1 special char"
             style={{
               width: '100%',
               padding: '0.5rem',
