@@ -1,6 +1,9 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Profile = () => {
+  const navigate = useNavigate();
+  
   // Regular expressions for validation
   const nameRegex = /^[A-Za-z]{2,}$/;
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -16,6 +19,7 @@ const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState(profile);
   const [errors, setErrors] = useState({});
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
   // Arrow function for handling input changes with real-time validation
   const handleInputChange = (e) => {
@@ -133,15 +137,49 @@ const Profile = () => {
       setProfile(editData);
       setIsEditing(false);
       setErrors({});
-      alert('Profile updated successfully!');
+      setSaveSuccess(true);
+
+      // Show success message for 3 seconds then hide
+      setTimeout(() => {
+        setSaveSuccess(false);
+      }, 3000);
+
+      console.log('Profile updated successfully:', editData);
     } else {
       setErrors(newErrors);
     }
   };
 
+  // Arrow function for navigating back to home
+  const handleBackToHome = () => {
+    navigate('/');
+  };
+
+  // Arrow function for navigating to signup
+  const handleGoToSignup = () => {
+    navigate('/signup');
+  };
+
   return (
     <div style={{ padding: '2rem', maxWidth: '600px', margin: '0 auto' }}>
       <h1>Profile Page</h1>
+
+      {/* Success Message */}
+      {saveSuccess && (
+        <div
+          style={{
+            backgroundColor: '#e8f5e9',
+            border: '2px solid #4caf50',
+            color: '#2e7d32',
+            padding: '1rem',
+            borderRadius: '4px',
+            marginBottom: '1rem',
+            animation: 'slideDown 0.3s ease',
+          }}
+        >
+          ✓ Profile updated successfully!
+        </div>
+      )}
 
       {!isEditing ? (
         // View Mode
@@ -167,23 +205,85 @@ const Profile = () => {
           </div>
 
           {/* Inline arrow function for edit button */}
-          <button
-            onClick={() => {
-              setEditData(profile);
-              setIsEditing(true);
-            }}
-            style={{
-              padding: '0.75rem 1.5rem',
-              backgroundColor: '#333',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontSize: '1rem',
-            }}
-          >
-            Edit Profile
-          </button>
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+            <button
+              onClick={() => {
+                setEditData(profile);
+                setIsEditing(true);
+              }}
+              style={{
+                flex: 1,
+                padding: '0.75rem 1.5rem',
+                backgroundColor: '#333',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '1rem',
+                transition: 'all 0.3s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = '#555';
+                e.target.style.transform = 'scale(1.02)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = '#333';
+                e.target.style.transform = 'scale(1)';
+              }}
+            >
+              ✏️ Edit Profile
+            </button>
+
+            <button
+              onClick={handleGoToSignup}
+              style={{
+                flex: 1,
+                padding: '0.75rem 1.5rem',
+                backgroundColor: '#61dafb',
+                color: '#000',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '1rem',
+                transition: 'all 0.3s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = '#3dd5f3';
+                e.target.style.transform = 'scale(1.02)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = '#61dafb';
+                e.target.style.transform = 'scale(1)';
+              }}
+            >
+              ➕ Create Account
+            </button>
+
+            <button
+              onClick={handleBackToHome}
+              style={{
+                flex: 1,
+                padding: '0.75rem 1.5rem',
+                backgroundColor: '#999',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '1rem',
+                transition: 'all 0.3s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = '#bbb';
+                e.target.style.transform = 'scale(1.02)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = '#999';
+                e.target.style.transform = 'scale(1)';
+              }}
+            >
+              🏠 Home
+            </button>
+          </div>
         </div>
       ) : (
         // Edit Mode
