@@ -39,7 +39,7 @@ const Profile = () => {
   const { username } = useParams();
 
   const foundProfile = useMemo(
-    () => dummyProfiles.find((p) => p.username === username),
+    () => (username ? dummyProfiles.find((p) => p.username === username) : null),
     [username]
   );
 
@@ -47,10 +47,11 @@ const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
-  const profile =
-    savedProfile && savedProfile.username === username
-      ? savedProfile
-      : foundProfile ?? defaultProfile;
+  const profile = useMemo(() => {
+    if (!username) return defaultProfile;
+    if (savedProfile?.username === username) return savedProfile;
+    return foundProfile ?? defaultProfile;
+  }, [username, foundProfile, savedProfile]);
 
   const nameRegex = /^[A-Za-z]{2,}$/;
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -68,8 +69,8 @@ const Profile = () => {
   });
 
   useEffect(() => {
-    reset(foundProfile ?? defaultProfile);
-  }, [foundProfile, reset]);
+    reset(profile);
+  }, [profile, reset]);
 
   const profileValidationRules = {
     fullName: {
@@ -111,7 +112,20 @@ const Profile = () => {
   const handleBackToHome = () => navigate('/');
   const handleGoToSignup = () => navigate('/signup');
 
-  if (!foundProfile) {
+  if (!username) {
+    return (
+      <div style={{ padding: '2rem', maxWidth: '600px', margin: '0 auto' }}>
+        <h1>Blank Profile</h1>
+        <p>No user is signed in. Please sign up or log in to view profile details.</p>
+        <button onClick={() => navigate('/signup')} style={{ marginRight: '0.75rem' }}>
+          Sign Up
+        </button>
+        <button onClick={handleBackToHome}>Home</button>
+      </div>
+    );
+  }
+
+  if (!foundProfile && !savedProfile) {
     return (
       <div style={{ padding: '2rem', maxWidth: '600px', margin: '0 auto' }}>
         <h1>Profile Not Found</h1>
@@ -123,7 +137,7 @@ const Profile = () => {
 
   return (
     <div style={{ padding: '2rem', maxWidth: '600px', margin: '0 auto' }}>
-      <h1>Profile of {profile.fullName}</h1>
+      <h1>Profile of {profile.fullName || 'Guest'}</h1>
 
       {saveSuccess && (
         <div

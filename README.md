@@ -1,16 +1,34 @@
-# React + Vite
+# Project Setup
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## REQUIREMENTS
 
-Currently, two official plugins are available:
+- Node.js 18+ (or later)
+- npm 10+ (or yarn)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## HOW TO INSTALL
 
-## React Compiler
+1. Clone project
+```bash
+git clone https://github.com/your-user/aptech1-midterm-exam.git
+cd aptech1-midterm-exam
+```
+2. Install deps
+```bash
+npm install
+```
+3. Run dev server
+```bash
+npm run dev
+```
+4. Open browser:
+- http://localhost:5173
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## USAGE
 
-## Expanding the ESLint configuration
+- `/profile` shows blank profile for not signed-in user
+- `/profile/:username` shows dummy profile data from `src/pages/Profile.jsx`
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## QUICK COMMANDS
+
+- `npm run lint`
+- `npm run build`
