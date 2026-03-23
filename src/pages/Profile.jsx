@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 
@@ -27,40 +27,50 @@ const dummyProfiles = [
   },
 ];
 
+const defaultProfile = {
+  fullName: '',
+  email: '',
+  bio: '',
+  phone: '',
+};
+
 const Profile = () => {
   const navigate = useNavigate();
   const { username } = useParams();
-  
-  // Regular expressions for validation
+
+  const foundProfile = useMemo(
+    () => dummyProfiles.find((p) => p.username === username),
+    [username]
+  );
+
+  const [savedProfile, setSavedProfile] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+
+  const profile =
+    savedProfile && savedProfile.username === username
+      ? savedProfile
+      : foundProfile ?? defaultProfile;
+
   const nameRegex = /^[A-Za-z]{2,}$/;
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const phoneRegex = /^[\d\s+\-()]+$/;
 
-  // Find the profile based on username
-  const foundProfile = dummyProfiles.find(profile => profile.username === username);
-  
-  const [profile, setProfile] = useState(foundProfile || {
-    fullName: '',
-    email: '',
-    bio: '',
-    phone: '',
-  });
-
-  const [isEditing, setIsEditing] = useState(false);
-  const [saveSuccess, setSaveSuccess] = useState(false);
-
   const {
-    register: registerEdit,
-    handleSubmit: handleSubmitEdit,
-    formState: { errors: editErrors, isSubmitting: isEditSubmitting },
-    reset: resetEdit,
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
     setValue,
   } = useForm({
     mode: 'onBlur',
     defaultValues: profile,
   });
 
-  // Validation rules for profile editing
+  useEffect(() => {
+    reset(foundProfile ?? defaultProfile);
+  }, [foundProfile, reset]);
+
   const profileValidationRules = {
     fullName: {
       required: 'Full name is required',
@@ -87,34 +97,19 @@ const Profile = () => {
       },
     },
     bio: {
-      validate: (value) => {
-        return value.length <= 200 || 'Bio must be 200 characters or less';
-      },
+      validate: (value) => value.length <= 200 || 'Bio must be 200 characters or less',
     },
   };
 
-  // Arrow function for handling save with react-hook-form
   const onSaveProfile = async (data) => {
-    console.log('Profile updated:', data);
-    setProfile(data);
+    setSavedProfile({ ...data, username });
     setIsEditing(false);
     setSaveSuccess(true);
-
-    // Show success message for 3 seconds
-    setTimeout(() => {
-      setSaveSuccess(false);
-    }, 3000);
+    setTimeout(() => setSaveSuccess(false), 3000);
   };
 
-  // Arrow function for navigating back to home
-  const handleBackToHome = () => {
-    navigate('/');
-  };
-
-  // Arrow function for navigating to signup
-  const handleGoToSignup = () => {
-    navigate('/signup');
-  };
+  const handleBackToHome = () => navigate('/');
+  const handleGoToSignup = () => navigate('/signup');
 
   if (!foundProfile) {
     return (
@@ -130,25 +125,23 @@ const Profile = () => {
     <div style={{ padding: '2rem', maxWidth: '600px', margin: '0 auto' }}>
       <h1>Profile of {profile.fullName}</h1>
 
-          {/* Success Message */}
-          {saveSuccess && (
-            <div
-              style={{
-                backgroundColor: '#e8f5e9',
-                border: '2px solid #4caf50',
-                color: '#2e7d32',
-                padding: '1rem',
-                borderRadius: '4px',
-                marginBottom: '1rem',
-                animation: 'slideDown 0.3s ease',
-              }}
-            >
-              ✓ Profile updated successfully!
-            </div>
-          )}
+      {saveSuccess && (
+        <div
+          style={{
+            backgroundColor: '#e8f5e9',
+            border: '2px solid #4caf50',
+            color: '#2e7d32',
+            padding: '1rem',
+            borderRadius: '4px',
+            marginBottom: '1rem',
+            animation: 'slideDown 0.3s ease',
+          }}
+        >
+          ✓ Profile updated successfully!
+        </div>
+      )}
 
       {!isEditing ? (
-        // View Mode
         <div style={{ border: '1px solid #ccc', padding: '1.5rem', borderRadius: '8px' }}>
           <div style={{ marginBottom: '1rem' }}>
             <h3>Full Name:</h3>
@@ -170,7 +163,6 @@ const Profile = () => {
             <p>{profile.phone}</p>
           </div>
 
-          {/* Inline arrow function for edit button */}
           <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
             <button
               onClick={() => {
@@ -192,12 +184,12 @@ const Profile = () => {
                 transition: 'all 0.3s ease',
               }}
               onMouseEnter={(e) => {
-                e.target.style.backgroundColor = '#555';
-                e.target.style.transform = 'scale(1.02)';
+                e.currentTarget.style.backgroundColor = '#555';
+                e.currentTarget.style.transform = 'scale(1.02)';
               }}
               onMouseLeave={(e) => {
-                e.target.style.backgroundColor = '#333';
-                e.target.style.transform = 'scale(1)';
+                e.currentTarget.style.backgroundColor = '#333';
+                e.currentTarget.style.transform = 'scale(1)';
               }}
             >
               ✏️ Edit Profile
@@ -217,12 +209,12 @@ const Profile = () => {
                 transition: 'all 0.3s ease',
               }}
               onMouseEnter={(e) => {
-                e.target.style.backgroundColor = '#3dd5f3';
-                e.target.style.transform = 'scale(1.02)';
+                e.currentTarget.style.backgroundColor = '#3dd5f3';
+                e.currentTarget.style.transform = 'scale(1.02)';
               }}
               onMouseLeave={(e) => {
-                e.target.style.backgroundColor = '#61dafb';
-                e.target.style.transform = 'scale(1)';
+                e.currentTarget.style.backgroundColor = '#61dafb';
+                e.currentTarget.style.transform = 'scale(1)';
               }}
             >
               ➕ Create Account
@@ -242,12 +234,12 @@ const Profile = () => {
                 transition: 'all 0.3s ease',
               }}
               onMouseEnter={(e) => {
-                e.target.style.backgroundColor = '#bbb';
-                e.target.style.transform = 'scale(1.02)';
+                e.currentTarget.style.backgroundColor = '#bbb';
+                e.currentTarget.style.transform = 'scale(1.02)';
               }}
               onMouseLeave={(e) => {
-                e.target.style.backgroundColor = '#999';
-                e.target.style.transform = 'scale(1)';
+                e.currentTarget.style.backgroundColor = '#999';
+                e.currentTarget.style.transform = 'scale(1)';
               }}
             >
               🏠 Home
@@ -255,9 +247,8 @@ const Profile = () => {
           </div>
         </div>
       ) : (
-        // Edit Mode - React Hook Form
         <form
-          onSubmit={handleSubmitEdit(onSaveProfile)}
+          onSubmit={handleSubmit(onSaveProfile)}
           style={{
             border: '1px solid #ccc',
             padding: '1.5rem',
@@ -267,189 +258,172 @@ const Profile = () => {
             gap: '1rem',
           }}
         >
-          {/* Full Name Input - React Hook Form */}
           <div>
             <label htmlFor="fullName">Full Name:</label>
             <input
               type="text"
               id="fullName"
-              {...registerEdit('fullName', profileValidationRules.fullName)}
+              {...register('fullName', profileValidationRules.fullName)}
               style={{
                 width: '100%',
                 padding: '0.5rem',
                 marginTop: '0.5rem',
-                border: editErrors.fullName ? '2px solid #d32f2f' : '1px solid #ccc',
+                border: errors.fullName ? '2px solid #d32f2f' : '1px solid #ccc',
                 borderRadius: '4px',
                 fontSize: '1rem',
-                backgroundColor: editErrors.fullName ? '#ffebee' : '#fff',
+                backgroundColor: errors.fullName ? '#ffebee' : '#fff',
                 transition: 'all 0.3s ease',
                 outline: 'none',
               }}
               onFocus={(e) => {
-                if (!editErrors.fullName) {
-                  e.target.style.borderColor = '#61dafb';
-                  e.target.style.boxShadow = '0 0 5px rgba(97, 218, 251, 0.5)';
+                if (!errors.fullName) {
+                  e.currentTarget.style.borderColor = '#61dafb';
+                  e.currentTarget.style.boxShadow = '0 0 5px rgba(97, 218, 251, 0.5)';
                 }
               }}
               onBlurCapture={(e) => {
-                e.target.style.boxShadow = 'none';
+                e.currentTarget.style.boxShadow = 'none';
               }}
             />
-            {editErrors.fullName && (
+            {errors.fullName && (
               <span style={{ color: '#d32f2f', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                ✗ {editErrors.fullName?.message}
+                ✗ {errors.fullName?.message}
               </span>
             )}
           </div>
 
-          {/* Email Input - React Hook Form */}
           <div>
             <label htmlFor="email">Email:</label>
             <input
               type="email"
               id="email"
-              {...registerEdit('email', profileValidationRules.email)}
+              {...register('email', profileValidationRules.email)}
               style={{
                 width: '100%',
                 padding: '0.5rem',
                 marginTop: '0.5rem',
-                border: editErrors.email ? '2px solid #d32f2f' : '1px solid #ccc',
+                border: errors.email ? '2px solid #d32f2f' : '1px solid #ccc',
                 borderRadius: '4px',
                 fontSize: '1rem',
-                backgroundColor: editErrors.email ? '#ffebee' : '#fff',
+                backgroundColor: errors.email ? '#ffebee' : '#fff',
                 transition: 'all 0.3s ease',
                 outline: 'none',
               }}
               onFocus={(e) => {
-                if (!editErrors.email) {
-                  e.target.style.borderColor = '#61dafb';
-                  e.target.style.boxShadow = '0 0 5px rgba(97, 218, 251, 0.5)';
+                if (!errors.email) {
+                  e.currentTarget.style.borderColor = '#61dafb';
+                  e.currentTarget.style.boxShadow = '0 0 5px rgba(97, 218, 251, 0.5)';
                 }
               }}
               onBlurCapture={(e) => {
-                e.target.style.boxShadow = 'none';
+                e.currentTarget.style.boxShadow = 'none';
               }}
             />
-            {editErrors.email && (
+            {errors.email && (
               <span style={{ color: '#d32f2f', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                ✗ {editErrors.email?.message}
+                ✗ {errors.email?.message}
               </span>
             )}
           </div>
 
-          {/* Bio Input - React Hook Form */}
           <div>
             <label htmlFor="bio">Bio:</label>
             <textarea
               id="bio"
-              {...registerEdit('bio', profileValidationRules.bio)}
+              {...register('bio', profileValidationRules.bio)}
               rows="4"
               style={{
                 width: '100%',
                 padding: '0.5rem',
                 marginTop: '0.5rem',
-                border: editErrors.bio ? '2px solid #d32f2f' : '1px solid #ccc',
+                border: errors.bio ? '2px solid #d32f2f' : '1px solid #ccc',
                 borderRadius: '4px',
                 fontSize: '1rem',
-                backgroundColor: editErrors.bio ? '#ffebee' : '#fff',
+                backgroundColor: errors.bio ? '#ffebee' : '#fff',
                 transition: 'all 0.3s ease',
                 outline: 'none',
               }}
               onFocus={(e) => {
-                if (!editErrors.bio) {
-                  e.target.style.borderColor = '#61dafb';
-                  e.target.style.boxShadow = '0 0 5px rgba(97, 218, 251, 0.5)';
+                if (!errors.bio) {
+                  e.currentTarget.style.borderColor = '#61dafb';
+                  e.currentTarget.style.boxShadow = '0 0 5px rgba(97, 218, 251, 0.5)';
                 }
               }}
               onBlurCapture={(e) => {
-                e.target.style.boxShadow = 'none';
+                e.currentTarget.style.boxShadow = 'none';
               }}
             />
-            {editErrors.bio && (
+            {errors.bio && (
               <span style={{ color: '#d32f2f', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                ✗ {editErrors.bio?.message}
+                ✗ {errors.bio?.message}
               </span>
             )}
           </div>
 
-          {/* Phone Input - React Hook Form */}
           <div>
             <label htmlFor="phone">Phone:</label>
             <input
               type="tel"
               id="phone"
-              {...registerEdit('phone', profileValidationRules.phone)}
+              {...register('phone', profileValidationRules.phone)}
               placeholder="e.g., 555-1234 or +1(555)123-4567"
               style={{
                 width: '100%',
                 padding: '0.5rem',
                 marginTop: '0.5rem',
-                border: editErrors.phone ? '2px solid #d32f2f' : '1px solid #ccc',
+                border: errors.phone ? '2px solid #d32f2f' : '1px solid #ccc',
                 borderRadius: '4px',
                 fontSize: '1rem',
-                backgroundColor: editErrors.phone ? '#ffebee' : '#fff',
+                backgroundColor: errors.phone ? '#ffebee' : '#fff',
                 transition: 'all 0.3s ease',
                 outline: 'none',
               }}
               onFocus={(e) => {
-                if (!editErrors.phone) {
-                  e.target.style.borderColor = '#61dafb';
-                  e.target.style.boxShadow = '0 0 5px rgba(97, 218, 251, 0.5)';
+                if (!errors.phone) {
+                  e.currentTarget.style.borderColor = '#61dafb';
+                  e.currentTarget.style.boxShadow = '0 0 5px rgba(97, 218, 251, 0.5)';
                 }
               }}
               onBlurCapture={(e) => {
-                e.target.style.boxShadow = 'none';
+                e.currentTarget.style.boxShadow = 'none';
               }}
             />
-            {editErrors.phone && (
+            {errors.phone && (
               <span style={{ color: '#d32f2f', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                ✗ {editErrors.phone?.message}
+                ✗ {errors.phone?.message}
               </span>
             )}
           </div>
 
-          {/* Buttons with inline arrow functions */}
           <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
             <button
               type="submit"
-              disabled={Object.keys(editErrors).length > 0 || isEditSubmitting}
+              disabled={Object.keys(errors).length > 0 || isSubmitting}
               style={{
                 flex: 1,
                 padding: '0.75rem',
                 backgroundColor:
-                  Object.keys(editErrors).length > 0 || isEditSubmitting
+                  Object.keys(errors).length > 0 || isSubmitting
                     ? '#ccc'
                     : '#28a745',
                 color: '#fff',
                 border: 'none',
                 borderRadius: '4px',
                 cursor:
-                  Object.keys(editErrors).length > 0 || isEditSubmitting
+                  Object.keys(errors).length > 0 || isSubmitting
                     ? 'not-allowed'
                     : 'pointer',
                 fontSize: '1rem',
                 transition: 'all 0.3s ease',
               }}
-              onMouseEnter={(e) => {
-                if (!e.currentTarget.disabled) {
-                  e.currentTarget.style.backgroundColor = '#218838';
-                  e.currentTarget.style.transform = 'scale(1.02)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!e.currentTarget.disabled) {
-                  e.currentTarget.style.backgroundColor = '#28a745';
-                  e.currentTarget.style.transform = 'scale(1)';
-                }
-              }}
             >
-              {isEditSubmitting ? '⏳ Saving...' : Object.keys(editErrors).length > 0 ? '✗ Fix Errors' : '✓ Save Changes'}
+              {isSubmitting ? '⏳ Saving...' : Object.keys(errors).length > 0 ? '✗ Fix Errors' : '✓ Save Changes'}
             </button>
             <button
               type="button"
               onClick={() => {
                 setIsEditing(false);
-                resetEdit();
+                reset(profile);
               }}
               style={{
                 flex: 1,
@@ -468,7 +442,6 @@ const Profile = () => {
         </form>
       )}
 
-      {/* State Output Binding Section - React Hook Form */}
       <div
         style={{
           marginTop: '2rem',
@@ -510,9 +483,9 @@ const Profile = () => {
             {JSON.stringify(
               {
                 isEditing,
-                isEditSubmitting,
-                hasErrors: Object.keys(editErrors).length > 0,
-                errorCount: Object.keys(editErrors).length,
+                isSubmitting,
+                hasErrors: Object.keys(errors).length > 0,
+                errorCount: Object.keys(errors).length,
               },
               null,
               2
@@ -529,18 +502,17 @@ const Profile = () => {
               borderRadius: '4px',
               overflow: 'auto',
               border: '1px solid #ddd',
-              color: Object.keys(editErrors).length > 0 ? '#d32f2f' : '#4caf50',
+              color: Object.keys(errors).length > 0 ? '#d32f2f' : '#4caf50',
             }}
           >
-            {Object.keys(editErrors).length > 0
+            {Object.keys(errors).length > 0
               ? JSON.stringify(
                   {
-                    fieldErrors: editErrors,
-                    totalErrors: Object.keys(editErrors).length,
-                    errorFields: Object.keys(editErrors),
+                    fieldErrors: errors,
+                    totalErrors: Object.keys(errors).length,
+                    errorFields: Object.keys(errors),
                   },
                   (key, value) => {
-                    // Format error objects to show just the message
                     if (value && typeof value === 'object' && 'message' in value) {
                       return value.message;
                     }
@@ -548,8 +520,7 @@ const Profile = () => {
                   },
                   2
                 )
-              : '✅ All fields are valid - no errors'
-            }
+              : '✅ All fields are valid - no errors'}
           </pre>
         </div>
       </div>
