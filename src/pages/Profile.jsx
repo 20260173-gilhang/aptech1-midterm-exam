@@ -17,12 +17,75 @@ const Profile = () => {
   const [editData, setEditData] = useState(profile);
   const [errors, setErrors] = useState({});
 
-  // Arrow function for handling input changes
+  // Arrow function for handling input changes with real-time validation
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setEditData((prevState) => ({
       ...prevState,
       [name]: value,
+    }));
+
+    // Clear error for this field when user starts typing (real-time clearing)
+    if (errors[name]) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        [name]: '',
+      }));
+    }
+  };
+
+  // Arrow function for validating a single field (real-time validation)
+  const validateField = (name, value) => {
+    let error = '';
+
+    switch (name) {
+      case 'fullName':
+        if (!value.trim()) {
+          error = 'Full name is required';
+        } else if (!nameRegex.test(value.split(' ')[0])) {
+          error = 'Full name must contain only letters';
+        } else if (value.length < 2) {
+          error = 'Full name must be at least 2 characters';
+        }
+        break;
+
+      case 'email':
+        if (!value.trim()) {
+          error = 'Email is required';
+        } else if (!emailRegex.test(value)) {
+          error = 'Please enter a valid email format';
+        }
+        break;
+
+      case 'phone':
+        if (!value.trim()) {
+          error = 'Phone is required';
+        } else if (!phoneRegex.test(value)) {
+          error = 'Please enter a valid phone number';
+        }
+        break;
+
+      case 'bio':
+        if (value && value.length > 200) {
+          error = 'Bio must be 200 characters or less';
+        }
+        break;
+
+      default:
+        break;
+    }
+
+    return error;
+  };
+
+  // Arrow function for handling onBlur events (real-time validation)
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    const error = validateField(name, value);
+
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: error,
     }));
   };
 
@@ -144,16 +207,33 @@ const Profile = () => {
               name="fullName"
               value={editData.fullName}
               onChange={handleInputChange}
+              onBlur={handleBlur}
               style={{
                 width: '100%',
                 padding: '0.5rem',
                 marginTop: '0.5rem',
-                border: errors.fullName ? '2px solid red' : '1px solid #ccc',
+                border: errors.fullName ? '2px solid #d32f2f' : '1px solid #ccc',
                 borderRadius: '4px',
                 fontSize: '1rem',
+                backgroundColor: errors.fullName ? '#ffebee' : '#fff',
+                transition: 'all 0.3s ease',
+                outline: 'none',
+              }}
+              onFocus={(e) => {
+                if (!errors.fullName) {
+                  e.target.style.borderColor = '#61dafb';
+                  e.target.style.boxShadow = '0 0 5px rgba(97, 218, 251, 0.5)';
+                }
+              }}
+              onBlurCapture={(e) => {
+                e.target.style.boxShadow = 'none';
               }}
             />
-            {errors.fullName && <span style={{ color: 'red', fontSize: '0.875rem' }}>{errors.fullName}</span>}
+            {errors.fullName && (
+              <span style={{ color: '#d32f2f', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                ✗ {errors.fullName}
+              </span>
+            )}
           </div>
 
           {/* Email Input with onChange */}
@@ -165,16 +245,33 @@ const Profile = () => {
               name="email"
               value={editData.email}
               onChange={handleInputChange}
+              onBlur={handleBlur}
               style={{
                 width: '100%',
                 padding: '0.5rem',
                 marginTop: '0.5rem',
-                border: errors.email ? '2px solid red' : '1px solid #ccc',
+                border: errors.email ? '2px solid #d32f2f' : '1px solid #ccc',
                 borderRadius: '4px',
                 fontSize: '1rem',
+                backgroundColor: errors.email ? '#ffebee' : '#fff',
+                transition: 'all 0.3s ease',
+                outline: 'none',
+              }}
+              onFocus={(e) => {
+                if (!errors.email) {
+                  e.target.style.borderColor = '#61dafb';
+                  e.target.style.boxShadow = '0 0 5px rgba(97, 218, 251, 0.5)';
+                }
+              }}
+              onBlurCapture={(e) => {
+                e.target.style.boxShadow = 'none';
               }}
             />
-            {errors.email && <span style={{ color: 'red', fontSize: '0.875rem' }}>{errors.email}</span>}
+            {errors.email && (
+              <span style={{ color: '#d32f2f', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                ✗ {errors.email}
+              </span>
+            )}
           </div>
 
           {/* Bio Input with onChange */}
@@ -185,17 +282,34 @@ const Profile = () => {
               name="bio"
               value={editData.bio}
               onChange={handleInputChange}
+              onBlur={handleBlur}
               rows="4"
               style={{
                 width: '100%',
                 padding: '0.5rem',
                 marginTop: '0.5rem',
-                border: errors.bio ? '2px solid red' : '1px solid #ccc',
+                border: errors.bio ? '2px solid #d32f2f' : '1px solid #ccc',
                 borderRadius: '4px',
                 fontSize: '1rem',
+                backgroundColor: errors.bio ? '#ffebee' : '#fff',
+                transition: 'all 0.3s ease',
+                outline: 'none',
+              }}
+              onFocus={(e) => {
+                if (!errors.bio) {
+                  e.target.style.borderColor = '#61dafb';
+                  e.target.style.boxShadow = '0 0 5px rgba(97, 218, 251, 0.5)';
+                }
+              }}
+              onBlurCapture={(e) => {
+                e.target.style.boxShadow = 'none';
               }}
             />
-            {errors.bio && <span style={{ color: 'red', fontSize: '0.875rem' }}>{errors.bio}</span>}
+            {errors.bio && (
+              <span style={{ color: '#d32f2f', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                ✗ {errors.bio}
+              </span>
+            )}
           </div>
 
           {/* Phone Input with onChange */}
@@ -207,41 +321,79 @@ const Profile = () => {
               name="phone"
               value={editData.phone}
               onChange={handleInputChange}
+              onBlur={handleBlur}
               placeholder="e.g., 555-1234 or +1(555)123-4567"
               style={{
                 width: '100%',
                 padding: '0.5rem',
                 marginTop: '0.5rem',
-                border: errors.phone ? '2px solid red' : '1px solid #ccc',
+                border: errors.phone ? '2px solid #d32f2f' : '1px solid #ccc',
                 borderRadius: '4px',
                 fontSize: '1rem',
+                backgroundColor: errors.phone ? '#ffebee' : '#fff',
+                transition: 'all 0.3s ease',
+                outline: 'none',
+              }}
+              onFocus={(e) => {
+                if (!errors.phone) {
+                  e.target.style.borderColor = '#61dafb';
+                  e.target.style.boxShadow = '0 0 5px rgba(97, 218, 251, 0.5)';
+                }
+              }}
+              onBlurCapture={(e) => {
+                e.target.style.boxShadow = 'none';
               }}
             />
-            {errors.phone && <span style={{ color: 'red', fontSize: '0.875rem' }}>{errors.phone}</span>}
+            {errors.phone && (
+              <span style={{ color: '#d32f2f', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                ✗ {errors.phone}
+              </span>
+            )}
           </div>
 
           {/* Buttons with inline arrow functions */}
           <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
             <button
               type="submit"
+              disabled={Object.keys(errors).length > 0 || !editData.fullName || !editData.email || !editData.phone}
               style={{
                 flex: 1,
                 padding: '0.75rem',
-                backgroundColor: '#28a745',
+                backgroundColor:
+                  Object.keys(errors).length > 0 || !editData.fullName || !editData.email || !editData.phone
+                    ? '#ccc'
+                    : '#28a745',
                 color: '#fff',
                 border: 'none',
                 borderRadius: '4px',
-                cursor: 'pointer',
+                cursor:
+                  Object.keys(errors).length > 0 || !editData.fullName || !editData.email || !editData.phone
+                    ? 'not-allowed'
+                    : 'pointer',
                 fontSize: '1rem',
+                transition: 'all 0.3s ease',
+              }}
+              onMouseEnter={(e) => {
+                if (!e.currentTarget.disabled) {
+                  e.currentTarget.style.backgroundColor = '#218838';
+                  e.currentTarget.style.transform = 'scale(1.02)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!e.currentTarget.disabled) {
+                  e.currentTarget.style.backgroundColor = '#28a745';
+                  e.currentTarget.style.transform = 'scale(1)';
+                }
               }}
             >
-              Save Changes
+              {Object.keys(errors).length > 0 ? '✗ Fix Errors' : '✓ Save Changes'}
             </button>
             <button
               type="button"
               onClick={() => {
                 setIsEditing(false);
                 setEditData(profile);
+                setErrors({});
               }}
               style={{
                 flex: 1,

@@ -21,12 +21,91 @@ const Signup = () => {
 
   const [errors, setErrors] = useState({});
 
-  // Arrow function for handling onChange events
+  // Arrow function for handling onChange events with real-time validation
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({
       ...prevState,
       [name]: value,
+    }));
+
+    // Clear error for this field when user starts typing (real-time clearing)
+    if (errors[name]) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        [name]: '',
+      }));
+    }
+  };
+
+  // Arrow function for validating a single field (real-time validation)
+  const validateField = (name, value) => {
+    let error = '';
+
+    switch (name) {
+      case 'firstName':
+        if (!value.trim()) {
+          error = 'First name is required';
+        } else if (!nameRegex.test(value)) {
+          error = 'First name must contain only letters and be at least 2 characters';
+        }
+        break;
+
+      case 'lastName':
+        if (!value.trim()) {
+          error = 'Last name is required';
+        } else if (!nameRegex.test(value)) {
+          error = 'Last name must contain only letters and be at least 2 characters';
+        }
+        break;
+
+      case 'username':
+        if (!value.trim()) {
+          error = 'Username is required';
+        } else if (!usernameRegex.test(value)) {
+          error = 'Username can only contain letters, numbers, dots, underscores, and hyphens';
+        }
+        break;
+
+      case 'email':
+        if (!value.trim()) {
+          error = 'Email is required';
+        } else if (!emailRegex.test(value)) {
+          error = 'Please enter a valid email format (e.g., user@example.com)';
+        }
+        break;
+
+      case 'password':
+        if (!value) {
+          error = 'Password is required';
+        } else if (!passwordRegex.test(value)) {
+          error = 'Password must be 8-16 characters with at least 1 uppercase, 1 lowercase, 1 number, and 1 special character';
+        }
+        break;
+
+      case 'confirmPassword':
+        if (!value) {
+          error = 'Please confirm your password';
+        } else if (formData.password !== value) {
+          error = 'Passwords do not match';
+        }
+        break;
+
+      default:
+        break;
+    }
+
+    return error;
+  };
+
+  // Arrow function for handling onBlur events (real-time validation)
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    const error = validateField(name, value);
+
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: error,
     }));
   };
 
@@ -129,15 +208,32 @@ const Signup = () => {
             name="firstName"
             value={formData.firstName}
             onChange={handleChange}
+            onBlur={handleBlur}
             style={{
               width: '100%',
               padding: '0.5rem',
               marginTop: '0.5rem',
-              border: errors.firstName ? '2px solid red' : '1px solid #ccc',
+              border: errors.firstName ? '2px solid #d32f2f' : '1px solid #ccc',
               borderRadius: '4px',
+              backgroundColor: errors.firstName ? '#ffebee' : '#fff',
+              transition: 'all 0.3s ease',
+              outline: 'none',
+            }}
+            onFocus={(e) => {
+              if (!errors.firstName) {
+                e.target.style.borderColor = '#61dafb';
+                e.target.style.boxShadow = '0 0 5px rgba(97, 218, 251, 0.5)';
+              }
+            }}
+            onBlurCapture={(e) => {
+              e.target.style.boxShadow = 'none';
             }}
           />
-          {errors.firstName && <span style={{ color: 'red', fontSize: '0.875rem' }}>{errors.firstName}</span>}
+          {errors.firstName && (
+            <span style={{ color: '#d32f2f', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              ✗ {errors.firstName}
+            </span>
+          )}
         </div>
 
         {/* Last Name Input with onChange */}
@@ -149,15 +245,32 @@ const Signup = () => {
             name="lastName"
             value={formData.lastName}
             onChange={handleChange}
+            onBlur={handleBlur}
             style={{
               width: '100%',
               padding: '0.5rem',
               marginTop: '0.5rem',
-              border: errors.lastName ? '2px solid red' : '1px solid #ccc',
+              border: errors.lastName ? '2px solid #d32f2f' : '1px solid #ccc',
               borderRadius: '4px',
+              backgroundColor: errors.lastName ? '#ffebee' : '#fff',
+              transition: 'all 0.3s ease',
+              outline: 'none',
+            }}
+            onFocus={(e) => {
+              if (!errors.lastName) {
+                e.target.style.borderColor = '#61dafb';
+                e.target.style.boxShadow = '0 0 5px rgba(97, 218, 251, 0.5)';
+              }
+            }}
+            onBlurCapture={(e) => {
+              e.target.style.boxShadow = 'none';
             }}
           />
-          {errors.lastName && <span style={{ color: 'red', fontSize: '0.875rem' }}>{errors.lastName}</span>}
+          {errors.lastName && (
+            <span style={{ color: '#d32f2f', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              ✗ {errors.lastName}
+            </span>
+          )}
         </div>
 
         {/* Username Input with onChange */}
@@ -169,16 +282,33 @@ const Signup = () => {
             name="username"
             value={formData.username}
             onChange={handleChange}
+            onBlur={handleBlur}
             placeholder="Letters, numbers, dots, underscores, hyphens"
             style={{
               width: '100%',
               padding: '0.5rem',
               marginTop: '0.5rem',
-              border: errors.username ? '2px solid red' : '1px solid #ccc',
+              border: errors.username ? '2px solid #d32f2f' : '1px solid #ccc',
               borderRadius: '4px',
+              backgroundColor: errors.username ? '#ffebee' : '#fff',
+              transition: 'all 0.3s ease',
+              outline: 'none',
+            }}
+            onFocus={(e) => {
+              if (!errors.username) {
+                e.target.style.borderColor = '#61dafb';
+                e.target.style.boxShadow = '0 0 5px rgba(97, 218, 251, 0.5)';
+              }
+            }}
+            onBlurCapture={(e) => {
+              e.target.style.boxShadow = 'none';
             }}
           />
-          {errors.username && <span style={{ color: 'red', fontSize: '0.875rem' }}>{errors.username}</span>}
+          {errors.username && (
+            <span style={{ color: '#d32f2f', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              ✗ {errors.username}
+            </span>
+          )}
         </div>
 
         {/* Email Input with onChange */}
@@ -190,16 +320,33 @@ const Signup = () => {
             name="email"
             value={formData.email}
             onChange={handleChange}
+            onBlur={handleBlur}
             placeholder="user@example.com"
             style={{
               width: '100%',
               padding: '0.5rem',
               marginTop: '0.5rem',
-              border: errors.email ? '2px solid red' : '1px solid #ccc',
+              border: errors.email ? '2px solid #d32f2f' : '1px solid #ccc',
               borderRadius: '4px',
+              backgroundColor: errors.email ? '#ffebee' : '#fff',
+              transition: 'all 0.3s ease',
+              outline: 'none',
+            }}
+            onFocus={(e) => {
+              if (!errors.email) {
+                e.target.style.borderColor = '#61dafb';
+                e.target.style.boxShadow = '0 0 5px rgba(97, 218, 251, 0.5)';
+              }
+            }}
+            onBlurCapture={(e) => {
+              e.target.style.boxShadow = 'none';
             }}
           />
-          {errors.email && <span style={{ color: 'red', fontSize: '0.875rem' }}>{errors.email}</span>}
+          {errors.email && (
+            <span style={{ color: '#d32f2f', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              ✗ {errors.email}
+            </span>
+          )}
         </div>
 
         {/* Password Input with onChange */}
@@ -211,16 +358,33 @@ const Signup = () => {
             name="password"
             value={formData.password}
             onChange={handleChange}
+            onBlur={handleBlur}
             placeholder="8-16 chars: 1 uppercase, 1 lowercase, 1 number, 1 special char"
             style={{
               width: '100%',
               padding: '0.5rem',
               marginTop: '0.5rem',
-              border: errors.password ? '2px solid red' : '1px solid #ccc',
+              border: errors.password ? '2px solid #d32f2f' : '1px solid #ccc',
               borderRadius: '4px',
+              backgroundColor: errors.password ? '#ffebee' : '#fff',
+              transition: 'all 0.3s ease',
+              outline: 'none',
+            }}
+            onFocus={(e) => {
+              if (!errors.password) {
+                e.target.style.borderColor = '#61dafb';
+                e.target.style.boxShadow = '0 0 5px rgba(97, 218, 251, 0.5)';
+              }
+            }}
+            onBlurCapture={(e) => {
+              e.target.style.boxShadow = 'none';
             }}
           />
-          {errors.password && <span style={{ color: 'red', fontSize: '0.875rem' }}>{errors.password}</span>}
+          {errors.password && (
+            <span style={{ color: '#d32f2f', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              ✗ {errors.password}
+            </span>
+          )}
         </div>
 
         {/* Confirm Password Input with onChange */}
@@ -232,33 +396,70 @@ const Signup = () => {
             name="confirmPassword"
             value={formData.confirmPassword}
             onChange={handleChange}
+            onBlur={handleBlur}
             style={{
               width: '100%',
               padding: '0.5rem',
               marginTop: '0.5rem',
-              border: errors.confirmPassword ? '2px solid red' : '1px solid #ccc',
+              border: errors.confirmPassword ? '2px solid #d32f2f' : '1px solid #ccc',
               borderRadius: '4px',
+              backgroundColor: errors.confirmPassword ? '#ffebee' : '#fff',
+              transition: 'all 0.3s ease',
+              outline: 'none',
+            }}
+            onFocus={(e) => {
+              if (!errors.confirmPassword) {
+                e.target.style.borderColor = '#61dafb';
+                e.target.style.boxShadow = '0 0 5px rgba(97, 218, 251, 0.5)';
+              }
+            }}
+            onBlurCapture={(e) => {
+              e.target.style.boxShadow = 'none';
             }}
           />
-          {errors.confirmPassword && <span style={{ color: 'red', fontSize: '0.875rem' }}>{errors.confirmPassword}</span>}
+          {errors.confirmPassword && (
+            <span style={{ color: '#d32f2f', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              ✗ {errors.confirmPassword}
+            </span>
+          )}
         </div>
 
         {/* Buttons with inline arrow functions */}
         <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
           <button
             type="submit"
+            disabled={Object.keys(errors).length > 0 || !formData.firstName || !formData.lastName || !formData.username || !formData.email || !formData.password || !formData.confirmPassword}
             style={{
               flex: 1,
               padding: '0.75rem',
-              backgroundColor: '#333',
+              backgroundColor:
+                Object.keys(errors).length > 0 || !formData.firstName || !formData.lastName || !formData.username || !formData.email || !formData.password || !formData.confirmPassword
+                  ? '#ccc'
+                  : '#333',
               color: '#fff',
               border: 'none',
               borderRadius: '4px',
-              cursor: 'pointer',
+              cursor:
+                Object.keys(errors).length > 0 || !formData.firstName || !formData.lastName || !formData.username || !formData.email || !formData.password || !formData.confirmPassword
+                  ? 'not-allowed'
+                  : 'pointer',
               fontSize: '1rem',
+              transition: 'all 0.3s ease',
+            }}
+            onMouseEnter={(e) => {
+              if (!e.currentTarget.disabled) {
+                e.currentTarget.style.backgroundColor = '#555';
+                e.currentTarget.style.transform = 'scale(1.02)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!e.currentTarget.disabled) {
+                e.currentTarget.style.backgroundColor = '#333';
+                e.currentTarget.style.transform = 'scale(1)';
+              }
             }}
           >
-            Sign Up
+            {Object.keys(errors).length > 0 ? '✗ Fix Errors' : '✓ Sign Up'}
           </button>
           <button
             type="button"
@@ -272,6 +473,15 @@ const Signup = () => {
               borderRadius: '4px',
               cursor: 'pointer',
               fontSize: '1rem',
+              transition: 'all 0.3s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#bbb';
+              e.currentTarget.style.transform = 'scale(1.02)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#999';
+              e.currentTarget.style.transform = 'scale(1)';
             }}
           >
             Reset
